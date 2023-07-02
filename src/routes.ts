@@ -4,6 +4,9 @@ import { authenticateUserHandler, createUserHandler } from "./controller/user.co
 import UserModel from "./model/User";
 import verifyUser from "./middleware/verifyUser";
 export default function(app: Express) {
+  app.get("/", (req, res) => {
+    res.send('<h1>hello user</h1>');
+  })
     app.get("/healthcheck", (req, res) => {
         res.sendStatus(200);
     });

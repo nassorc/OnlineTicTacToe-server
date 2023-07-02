@@ -1,13 +1,13 @@
 {
-  "name": "tic-tac-toe-socket",
+  "name": "multiplayer-tic-tac-toe",
   "version": "1.0.0",
-  "description": "",
+  "description": "Online TicTacToe game",
   "main": "index.js",
   "engines": {"node": "20.0.0"},
   "scripts": {
-    "start": "node build/index.js",
+    "start": "node dist/index.js",
     "postinstall": "tsc -p tsconfig.json",
-    "dev": "nodemon ./index.ts"
+    "dev": "nodemon src/index.ts"
   },
   "keywords": [],
   "author": "",
