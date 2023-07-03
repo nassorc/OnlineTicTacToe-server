@@ -1,6 +1,7 @@
 import UserModel from "../model/User";
 import crypto from 'crypto'
 import { gameType } from "../socket";
+import { setOnlineStatus } from "../usecase/user.usecase";
 
 export function onInvitePlayer(socket: any) {
   return async (playerId: string) => {
@@ -47,7 +48,6 @@ export function onAcceptInvitation(socket: any, games: gameType[]) {
       history: [["","","","","","","","",""]],
       currentPlayer: ""
     })
-    console.log(games);
     socket.broadcast.to(roomId).emit("user:acceptsInvitation", {
       roomId: roomId,
     });
@@ -115,7 +115,9 @@ export function onPlayerMove(socket: any, games: gameType[]) {
 
     // check for winners
     let winner = checkWinner(newBoard);
-    if(winner === "X" || winner === "O") {
+    let val = winner.winner
+    console.log(winner);
+    if(val === "X" || val === "x" || val === "O" || val === "o") {
       socket.emit("game:playerMove", game);
       socket.emit("game:winner", winner);
       socket.to(roomId).emit("game:playerMove", game);
@@ -128,7 +130,7 @@ export function onPlayerMove(socket: any, games: gameType[]) {
   }
 }
 
-function checkWinner(board: string[]): string {
+function checkWinner(board: string[]) {
   const winningMoves = [
     [0,1,2],
     [3,4,5],
@@ -139,19 +141,37 @@ function checkWinner(board: string[]): string {
     [0,4,8],
     [2,4,6],
   ]
-
-  let winner = '';
+  let winner: {winner: string, tiles: number[]} = {
+    winner: '',
+    tiles: [],
+  };
   winningMoves.forEach(move => {
     const [a, b, c] = move;
-    if(board[a] == board[b] && board[a] === board[c]) {
-      winner = board[a];
+    if(board[a] && board[a] == board[b] && board[a] === board[c]) {
+      console.log(board[a]);
+      console.log(board[b]);
+      console.log(board[c]);
+      winner.winner = board[a];
+      winner.tiles.push(a,b,c);
     }
   })
-  return winner;
+  if(winner.winner) {
+    return winner;
+  }
+  return {
+    winner: '',
+    tiles: []
+  }
 }
 
 export function onPlayerWins() {
   return async (playerId: string) => {
     return;
+  }
+}
+
+export function onUserDisconnect(socket: any) {
+  return async () => {
+    await setOnlineStatus(socket.userId, false);
   }
 }

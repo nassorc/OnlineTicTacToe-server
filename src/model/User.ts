@@ -6,7 +6,8 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     sessionId: {type: String, default: ""},
-    isSessionValid: {type: Boolean, default: false}
+    isSessionValid: {type: Boolean, default: false},
+    online: {type: Boolean, default: false},
 }, {
     timestamps: true,
 });

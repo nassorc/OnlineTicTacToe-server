@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import UserModel from "../model/User";
+import mongoose from "mongoose";
 
 export const createUser = async (userDetails: any) => {
     try {
@@ -24,7 +25,8 @@ export const findUserByUsername = async (username: string) => {
 export const authenticateUser = async (email: string, password: string) => {
     const user = await UserModel.findOne({email}, "-__v -sessionId -isSessionValid -createdAt -updatedAt");
     if(!user) throw new Error("Email or password is incorrect");
-    if(user.password != password) throw new Error("Email or password is incorrect");
+    if(user.password != password) throw new Error("Email or password is incorrect"); 
+    setOnlineStatus(user._id, true);
     const payload = {
         _id: user._id,
         username:  user.username,
@@ -42,3 +44,8 @@ export const authenticateUser = async (email: string, password: string) => {
         refreshToken
     };
 };
+
+export const setOnlineStatus = async (id: string | mongoose.Types.ObjectId, status: boolean) => {
+  await UserModel.findByIdAndUpdate(id, { $set: { online: status}});
+  return true;
+}

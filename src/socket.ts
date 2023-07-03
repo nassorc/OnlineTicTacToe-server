@@ -5,9 +5,11 @@ import {
   onPlayerMove, 
   onRejectInvitation, 
   onUserConnected,
-  onPlayerWins
+  onPlayerWins,
+  onUserDisconnect
 } from "./controller/socket.controller";
 import socketAttachUser from "./middleware/socketAttachUser";
+import { setOnlineStatus } from "./usecase/user.usecase";
 
 export interface gameStatusType {
   roomId: string,
@@ -56,11 +58,15 @@ export default function socket(server: any) {
 
   io.on("connection", (socket: any) => {
     socket.join(socket.userId);
+    (async function() {
+      await setOnlineStatus(socket.userId, true);
+    })();
     socket.on("user:invitePlayer", onInvitePlayer(socket));
     socket.on("user:acceptInvitation", onAcceptInvitation(socket, games));
     socket.on("user:rejectInvitation", onRejectInvitation(socket, games));
     socket.on("game:connected", onUserConnected(socket, games));
     socket.on("game:playerMove", onPlayerMove(socket, games));
     socket.on("game:winner", onPlayerWins);
+    socket.on("disconnect", onUserDisconnect(socket));
   });
 }
