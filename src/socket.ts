@@ -36,7 +36,6 @@ export default function socket(server: any) {
 
     // join room with friend's id
     for(let friendId of socket.friends) {
-      console.log(friendId)
       socket.join(friendId);
     }
 

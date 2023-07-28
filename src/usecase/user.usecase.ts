@@ -153,7 +153,6 @@ export const acceptFriendRequest = async (currentUserId: string, friendId: strin
 }
 
 export const fuzzySearchUser = async (username: string) => {
-  console.log("FUZZIED SEARCHED")
   const users = await UserModel.find({username: { $regex: new RegExp(`${username}`, "i")}}, "-password -createdAt -updatedAt -__v -sessionId -isSessionValid")
   const fuse = new Fuse(users, {
     keys: ['username'],

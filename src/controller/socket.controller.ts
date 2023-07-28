@@ -47,6 +47,7 @@ export async function onUserAddFriend(socket: any, payload: any) {
   // emit to receiver
   socket.to(payload.message.friendId).emit("user:receiveFriendRequest", invitation)
 }
+let invitations = [];
 export async function onInvitePlayer(socket: any, payload: any) {
   console.log(payload.message)
   // extract data
@@ -72,13 +73,21 @@ export async function onInvitePlayer(socket: any, payload: any) {
     }
   }
 
+  invitations.push(invitation);
+
   socket.to(playerId).emit("user:invited", invitation);
-  socket.roomId = newGame.gameId;
   socket.join(newGame.gameId);
 }
 
 export async function onAcceptInvitation(socket: any, payload: any) {
-  const roomId = payload.message.roomId;
+  const roomKey = payload.message.roomId;
+  const invitation = invitations.find(i => i.roomId === roomKey);
+  const roomId = invitation.roomId;
+
+  // TODO: notify user when invitation was cancelled by the sender
+  if(!invitation) return;
+
+  console.log("ON ACCEPT INVITE::", invitation);
   // add roomId to socket object
   socket.roomId = roomId;
   // join room user to room
@@ -101,7 +110,7 @@ export async function onRejectInvitation(socket: any, payload: any) {
 export async function onUserConnected(socket: any, payload: any) {
   // console.dir(payload, {depth: Infinity});
   console.log("game connected");
-  const roomId = payload.roomId || payload.message.roomId;
+  const roomId = payload.message.roomId;
   const userId = payload.user.userId || payload.message.userId;
 
   const game = games.find(game => game.gameId === roomId);
