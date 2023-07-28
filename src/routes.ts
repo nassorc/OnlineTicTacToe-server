@@ -1,33 +1,21 @@
 import {Express} from "express";
 import controllerHandler from "./middleware/controllerHandler";
-import { authenticateUserHandler, createUserHandler } from "./controller/user.controller";
-import UserModel from "./model/User";
+import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserHandler, rejectFriendRequestHandler } from "./controller/user.controller";
 import verifyUser from "./middleware/verifyUser";
+import { incrementPlayerGameWins, addGameRound } from "./usecase/game.usecase";
+
 export default function(app: Express) {
-  app.get("/", (req, res) => {
-    res.send('<h1>hello user</h1>');
+  app.post("/api/signin", controllerHandler(authenticateUserHandler));
+  app.get("/api/user/:id", verifyUser, controllerHandler(getUserHandler));
+  app.post("/api/user", controllerHandler(createUserHandler));
+  app.get("/api/user/username/:username", verifyUser, controllerHandler(fuzzySearchUserHandler));
+  app.get("/api/friends", verifyUser, controllerHandler(getFriendsHandler))
+  app.post("/api/friend/add/:id", verifyUser, controllerHandler(addFriendHandler));
+  app.post('/api/friend/accept/:id', verifyUser, controllerHandler(acceptFriendRequestHandler));
+  app.post('/api/friend/reject/:id', verifyUser, controllerHandler(rejectFriendRequestHandler));
+  app.post('/api/test', async (req, res) => {
+    // await incrementPlayerGameWins("64aa553941deaa293ca2ec49", "64a3b8ddac9c82a887932c2b");
+    await addGameRound("64a60b1f77d9e6a16d183689", "64a3b8ddac9c82a887932c2b");
+    res.sendStatus(200);
   })
-    app.get("/healthcheck", (req, res) => {
-        res.sendStatus(200);
-    });
-    app.post("/api/signin", controllerHandler(authenticateUserHandler));
-    app.post("/api/user", controllerHandler(createUserHandler));
-    app.get("/api/user/:username", verifyUser, async (req, res) => {
-        const username = req.params.username;
-        const user = await UserModel.find({username: { $regex: new RegExp(`${username}`, "i")}}, "-password -createdAt -updatedAt -__v -sessionId -isSessionValid")
-        res.status(200).send(user)
-    })
-    app.get("/api/find", async (req, res) => {
-        const user = await UserModel.find({username: { $regex: /admin/i}})
-        res.status(200).send(user);
-        // const users = await UserModel.find({$find: { $search: '/admin/'}});
-        // UserModel.find({$text: { $regex: }})
-        //     .limit(10)
-        //     .exec()
-        //     .then((data) => {
-        //         console.log(data)
-        //         res.sendStatus(200);
-        //     });
-        // console.log(users);
-    })
 }

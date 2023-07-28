@@ -15,22 +15,21 @@ type ControllerFnType = (req: Request) => Promise<ControllerResponseType>;
 function controllerHandler(controller: ControllerFnType) {
     return async (req: Request, res: Response) => {
         try {
-            const ControllerResponse: ControllerResponseType = await controller(req);
-            if(ControllerResponse.headers) {
-                res.set(ControllerResponse.headers);
+            const {status, body, headers, cookies} = await controller(req);
+            if(headers) {
+                res.set(headers);
             }
-            if(ControllerResponse.cookies && ControllerResponse.cookies.length > 0) {
-                ControllerResponse.cookies.forEach((cookie: any) => {
-                    console.log(cookie);
+            if(cookies) {
+                cookies.forEach((cookie: any) => {
                     res.cookie(cookie.type, cookie.value, {
                         httpOnly: cookie.httpOnly,
+                        maxAge: 1000 * 60 * 60 * 24,
                     })
                 })
             }
-            // res.cookie("name", "123");
-            res.status(ControllerResponse.status);
+            res.status(status);
             res.type("json")
-            res.send(ControllerResponse.body);
+            res.send(body);
         }
         catch(error: any) {
             console.log(error.message);
@@ -38,35 +37,5 @@ function controllerHandler(controller: ControllerFnType) {
         }
     }
 }
-
-// function controllerHandler(controller) {
-//     return async (req: RequestType, res: Response) => {
-//         const requestObject = {
-//             body: req.body,
-//             query: req.query,
-//             params: req.params,
-//             locals: req.locals,
-//         };
-
-//         try {
-//             const responseObject = await controller(requestObject);
-//             if(responseObject.headers) {
-//                 res.set(responseObject.headers);
-//             }
-//             if(responseObject?.cookies) {
-//                 responseObject?.cookies.forEach(cookie => {
-//                     res.cookie(Object.keys(cookie)[0], Object.values(cookie)[0]);
-//                 });
-//             }
-//             res.type("json");
-//             res.status(responseObject.status as number);
-//             res.send(responseObject.body);
-//         }
-//         catch(error: any) {
-//             res.status(500).send({error: error.message});
-//         }
-//         // after controller returns
-//     };
-// }
 
 export default controllerHandler;

@@ -4,46 +4,13 @@ import {
   onInvitePlayer, 
   onPlayerMove, 
   onRejectInvitation, 
+  onUserAddFriend, 
   onUserConnected,
-  onPlayerWins,
-  onUserDisconnect
+  onUserDisconnecting,
+  socketHandler,
 } from "./controller/socket.controller";
 import socketAttachUser from "./middleware/socketAttachUser";
 import { setOnlineStatus } from "./usecase/user.usecase";
-
-export interface gameStatusType {
-  roomId: string,
-  game: gameHistoryType,
-  [key: string]: any,
-}
-export interface gameHistoryType {
-  roomId: string,
-  playerX: string,
-  playerO: string,
-  round: number,
-  history: Array<Array<string>>,
-  currentPlayer: string,
-}
-const gameStatus: gameStatusType[] = []
-
-export interface gameType {
-  roomId: string,
-  userA: {
-    userId: string,
-    ready: boolean,
-  },
-  userB: {
-    userId: string,
-    ready: boolean,
-  },
-  playerX: string,
-  playerO: string,
-  round: number,
-  history: Array<Array<string>>
-  currentPlayer: string,
-}
-
-const games: gameType[] = []
 
 export default function socket(server: any) {
   const io = new Server(server, {
@@ -54,19 +21,34 @@ export default function socket(server: any) {
       }
   });
 
+  // middleware attaches user information on socket
   io.use(socketAttachUser);
 
   io.on("connection", (socket: any) => {
+    // join user in friend's room
+    // allows for real time notification, specfically from friends
     socket.join(socket.userId);
+    socket.join(socket.roomKey);
+
     (async function() {
       await setOnlineStatus(socket.userId, true);
     })();
-    socket.on("user:invitePlayer", onInvitePlayer(socket));
-    socket.on("user:acceptInvitation", onAcceptInvitation(socket, games));
-    socket.on("user:rejectInvitation", onRejectInvitation(socket, games));
-    socket.on("game:connected", onUserConnected(socket, games));
-    socket.on("game:playerMove", onPlayerMove(socket, games));
-    socket.on("game:winner", onPlayerWins);
-    socket.on("disconnect", onUserDisconnect(socket));
+
+    // join room with friend's id
+    for(let friendId of socket.friends) {
+      console.log(friendId)
+      socket.join(friendId);
+    }
+
+    socket.on("user:addFriend", socketHandler(socket, onUserAddFriend))
+    socket.to(socket.roomKey).emit("friend:connected", socket.userId);
+    socket.on("user:invitePlayer", socketHandler(socket, onInvitePlayer));
+    socket.on("user:acceptInvitation", socketHandler(socket, onAcceptInvitation));
+    socket.on("user:rejectInvitation", socketHandler(socket, onRejectInvitation));
+    socket.on("game:connected", socketHandler(socket, onUserConnected));
+    socket.on("game:playerMove", socketHandler(socket, onPlayerMove));
+    socket.on("disconnecting", onUserDisconnecting(socket));
+    
+    socket.emit("test:notification", "notification from server")
   });
 }
