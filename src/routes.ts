@@ -1,6 +1,6 @@
 import {Express} from "express";
 import controllerHandler from "./middleware/controllerHandler";
-import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserHandler, rejectFriendRequestHandler } from "./controller/user.controller";
+import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserByUsernameHandler, getUserHandler, rejectFriendRequestHandler } from "./controller/user.controller";
 import verifyUser from "./middleware/verifyUser";
 import { incrementPlayerGameWins, addGameRound } from "./usecase/game.usecase";
 
@@ -8,7 +8,8 @@ export default function(app: Express) {
   app.post("/api/signin", controllerHandler(authenticateUserHandler));
   app.get("/api/user/:id", verifyUser, controllerHandler(getUserHandler));
   app.post("/api/user", controllerHandler(createUserHandler));
-  app.get("/api/user/username/:username", verifyUser, controllerHandler(fuzzySearchUserHandler));
+  app.get("/api/user/username/:username", verifyUser, controllerHandler(getUserByUsernameHandler));
+  app.get("/api/users/username/:username", verifyUser, controllerHandler(fuzzySearchUserHandler));
   app.get("/api/friends", verifyUser, controllerHandler(getFriendsHandler))
   app.post("/api/friend/add/:id", verifyUser, controllerHandler(addFriendHandler));
   app.post('/api/friend/accept/:id', verifyUser, controllerHandler(acceptFriendRequestHandler));

@@ -1,4 +1,4 @@
-import { createUser, authenticateUser, getFriends, addFriend, acceptFriendRequest, fuzzySearchUser, findUserbyId, rejectFriendRequest } from "../usecase/user.usecase";
+import { createUser, authenticateUser, getFriends, addFriend, acceptFriendRequest, fuzzySearchUser, findUserbyId, rejectFriendRequest, findUserByUsername } from "../usecase/user.usecase";
 interface requestObjectType {
     body: any,
     params: any,
@@ -112,5 +112,12 @@ export const rejectFriendRequestHandler = async (requestObject: any) => {
 export const fuzzySearchUserHandler = async(requestObject: any) => {
   const username = requestObject.params.username;
   const users = await fuzzySearchUser(username);
+  return createResponse(200, users);
+}
+
+
+export const getUserByUsernameHandler = async(requestObject: any) => {
+  const username = requestObject.params.username;
+  const users = await findUserByUsername(username);
   return createResponse(200, users);
 }

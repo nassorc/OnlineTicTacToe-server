@@ -48,6 +48,6 @@ export default function socket(server: any) {
     socket.on("game:playerMove", socketHandler(socket, onPlayerMove));
     socket.on("disconnecting", onUserDisconnecting(socket));
     
-    socket.emit("test:notification", "notification from server")
+    socket.emit("notification:gameInvite", "notification from server")
   });
 }

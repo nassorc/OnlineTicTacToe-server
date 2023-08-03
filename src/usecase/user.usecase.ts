@@ -57,7 +57,8 @@ export const findUserbyEmail = async (email: string) => {
 }; 
 
 export const findUserByUsername = async (username: string) => {
-    const user = await UserModel.find({username}, "-password -createdAt -updatedAt -__v");
+    // const user = await UserModel.find({username}, "-password -createdAt -updatedAt -__v");
+    const user = await UserModel.find({username: username}, "_id username email createdAt online playing totalWins allGames");
     return user;
 };
 

@@ -109,9 +109,10 @@ export async function onRejectInvitation(socket: any, payload: any) {
 
 export async function onUserConnected(socket: any, payload: any) {
   // console.dir(payload, {depth: Infinity});
-  console.log("game connected");
   const roomId = payload.message.roomId;
   const userId = payload.user.userId || payload.message.userId;
+  socket.join(roomId);
+  console.log(`User ${userId} connected to ${roomId}`);
 
   const game = games.find(game => game.gameId === roomId);
   if(!game) throw new Error("Game does not exist");
@@ -129,7 +130,8 @@ export async function onUserConnected(socket: any, payload: any) {
 // last: created a mongodb transaction, now broken code
 export async function onPlayerMove(socket: any, payload: any) {
   // get roomId
-  const roomId = payload.roomId;
+  const roomId = payload.message.roomId;
+  console.log("MOVE: ", payload.message.roomId);
   const roundId = payload.message.roundId;
   const board = payload.message.board;
 
@@ -159,6 +161,7 @@ export function onUserDisconnecting(socket: any) {
   return async () => {
     // TODO: Implement saving game when a user disconnects mid game
     // TODO: Inform other player, add abort feature. Giving win to the user who didn't dc
+    console.log("user diconnected");
     await setOnlineStatus(socket.userId, false);
     socket.to(socket.roomKey).emit("friend:disconnected", socket.userId);
   }
