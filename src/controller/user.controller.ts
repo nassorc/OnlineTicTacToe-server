@@ -10,7 +10,8 @@ import {
   rejectFriendRequest, 
   findUserByUsername, 
   getUserProfile,
-  uploadProfileImage
+  uploadProfileImage,
+  deleteUser
 } from "../usecase/user.usecase";
 interface requestObjectType {
     body: any,
@@ -35,6 +36,11 @@ export const createUserHandler = async ({body}: {body: any}) => {
     throw error
   }
 }; 
+
+export const deleteUserHandler = async (req: any) => {
+  await deleteUser(req.params.id);
+  return createResponse(200, "User deleted");
+}
 
 export const authenticateUserHandler = async ({body}: {body: any}) => {
   try {

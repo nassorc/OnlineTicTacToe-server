@@ -8,9 +8,12 @@ import AppError from "../errors/AppError";
 
 export const createUser = async (userDetails: any) => {
   const user = await UserModel.create(userDetails);
-  console.log("USECASE CREATE", user);
   return user;
 };
+
+export const deleteUser = async (userId: string) => {
+  const user = await UserModel.findOneAndDelete({_id: userId});
+}
 
 export function generateGameId() {
   return (new Types.ObjectId()).toString();

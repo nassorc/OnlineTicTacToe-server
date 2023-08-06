@@ -1,6 +1,6 @@
 import {Express} from "express";
 import controllerHandler from "./middleware/controllerHandler";
-import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserByUsernameHandler, getUserHandler, getUserProfileHandler, rejectFriendRequestHandler, uploadProfileImageHandler } from "./controller/user.controller";
+import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, deleteUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserByUsernameHandler, getUserHandler, getUserProfileHandler, rejectFriendRequestHandler, uploadProfileImageHandler } from "./controller/user.controller";
 import verifyUser from "./middleware/verifyUser";
 import { incrementPlayerGameWins, addGameRound } from "./usecase/game.usecase";
 import AppError from "./errors/AppError";
@@ -9,6 +9,7 @@ export default function(app: Express) {
   app.post("/api/signin", controllerHandler(authenticateUserHandler));
   app.get("/api/user/:id", verifyUser, controllerHandler(getUserHandler));
   app.post("/api/user", controllerHandler(createUserHandler));
+  app.post("/api/user/:id/delete", controllerHandler(deleteUserHandler));
   app.get("/api/user/:id/profile", verifyUser, controllerHandler(getUserProfileHandler));
   app.get("/api/users/username/:username", verifyUser, controllerHandler(fuzzySearchUserHandler));
   app.get("/api/friends", verifyUser, controllerHandler(getFriendsHandler))
