@@ -112,7 +112,6 @@ export async function onUserConnected(socket: any, payload: any) {
   const roomId = payload.message.roomId;
   const userId = payload.user.userId || payload.message.userId;
   socket.join(roomId);
-  console.log(`User ${userId} connected to ${roomId}`);
 
   const game = games.find(game => game.gameId === roomId);
   if(!game) throw new Error("Game does not exist");

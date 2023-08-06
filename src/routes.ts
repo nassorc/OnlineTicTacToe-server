@@ -1,6 +1,6 @@
 import {Express} from "express";
 import controllerHandler from "./middleware/controllerHandler";
-import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserByUsernameHandler, getUserHandler, rejectFriendRequestHandler } from "./controller/user.controller";
+import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserByUsernameHandler, getUserHandler, getUserProfileHandler, rejectFriendRequestHandler, uploadProfileImageHandler } from "./controller/user.controller";
 import verifyUser from "./middleware/verifyUser";
 import { incrementPlayerGameWins, addGameRound } from "./usecase/game.usecase";
 import AppError from "./errors/AppError";
@@ -9,7 +9,7 @@ export default function(app: Express) {
   app.post("/api/signin", controllerHandler(authenticateUserHandler));
   app.get("/api/user/:id", verifyUser, controllerHandler(getUserHandler));
   app.post("/api/user", controllerHandler(createUserHandler));
-  app.get("/api/user/username/:username", verifyUser, controllerHandler(getUserByUsernameHandler));
+  app.get("/api/user/:id/profile", verifyUser, controllerHandler(getUserProfileHandler));
   app.get("/api/users/username/:username", verifyUser, controllerHandler(fuzzySearchUserHandler));
   app.get("/api/friends", verifyUser, controllerHandler(getFriendsHandler))
   app.post("/api/friend/add/:id", verifyUser, controllerHandler(addFriendHandler));
@@ -20,7 +20,8 @@ export default function(app: Express) {
     await addGameRound("64a60b1f77d9e6a16d183689", "64a3b8ddac9c82a887932c2b");
     res.sendStatus(200);
   })
-}}
+
+  app.post("/api/user/:id/profile-image", verifyUser, controllerHandler(uploadProfileImageHandler));
   app.all("*", (req, res, next) => {
     next(new AppError(`Page ${req.originalUrl} not found`, 404));
   })

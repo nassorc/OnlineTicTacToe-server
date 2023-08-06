@@ -1,4 +1,16 @@
-import { createUser, authenticateUser, getFriends, addFriend, acceptFriendRequest, fuzzySearchUser, findUserbyId, rejectFriendRequest, findUserByUsername } from "../usecase/user.usecase";
+import { 
+  createUser, 
+  authenticateUser, 
+  getFriends, 
+  addFriend, 
+  acceptFriendRequest, 
+  fuzzySearchUser, 
+  findUserbyId, 
+  rejectFriendRequest, 
+  findUserByUsername, 
+  getUserProfile,
+  uploadProfileImage
+} from "../usecase/user.usecase";
 interface requestObjectType {
     body: any,
     params: any,
@@ -118,6 +130,19 @@ export const fuzzySearchUserHandler = async(requestObject: any) => {
 
 export const getUserByUsernameHandler = async(requestObject: any) => {
   const username = requestObject.params.username;
-  const users = await findUserByUsername(username);
+  const users = await findUserbyId(username);
   return createResponse(200, users);
+}
+
+export const getUserProfileHandler = async (requestObject: any) => {
+  const userId = requestObject.params.id;
+  const userProfile = await getUserProfile(userId);
+  return createResponse(200, userProfile);
+}
+
+export const uploadProfileImageHandler = async (requestObject: any) => {
+  const userId = requestObject.params.id;
+  const image = requestObject.body.image;
+  const userProfile = await uploadProfileImage(userId, image);
+  return createResponse(200, userProfile);
 }

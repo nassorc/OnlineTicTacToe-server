@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema({
   allGames: {type: [ String ], ref: 'games', default: []},
   friends: {type: [ String ], ref: 'users', default: []},
   friendInvites: {type: [FriendInviteSchema], default: []},
+  profileImage: {type: String, default: ""}
 }, {
     timestamps: true,
 });

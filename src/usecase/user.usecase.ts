@@ -95,13 +95,11 @@ export const addFriend = async(currentUserId: string, friendId: string) => {
   // check if user alreay made request
   const friendRequestExists = await UserModel.findOne({_id: friendId, "friendInvites.sender": currentUserId });
   if(friendRequestExists) {
-    console.log("REQUEST ALREADY EXISTS", friendRequestExists)
     return
   }
   const friend = await UserModel.findByIdAndUpdate(friendId, 
     {$push: { friendInvites: {sender: currentUserId}}}
   )
-  console.log("USEVASE::::", friend)
   if(!friend) throw new Error('Could not add User as friend. User does not exist');
   const alreadyFriend = friend.friends.includes(currentUserId);
   if(alreadyFriend) throw new Error('User is already current user\'s friend');
@@ -166,4 +164,13 @@ export const fuzzySearchUser = async (username: string) => {
 export const setOnlineStatus = async (id: string | mongoose.Types.ObjectId, status: boolean) => {
   await UserModel.findByIdAndUpdate(id, { $set: { online: status}});
   return true;
+}
+
+export const getUserProfile = async (userId: string) => {
+  const user = await UserModel.findById(userId, "_id username email createdAt online playing totalWins allGames profileImage");
+  return user;
+}
+
+export const uploadProfileImage = async (userId, image) => {
+  await UserModel.findByIdAndUpdate(userId, {profileImage: image});
 }

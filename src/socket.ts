@@ -47,7 +47,6 @@ export default function socket(server: any) {
     socket.on("game:connected", socketHandler(socket, onUserConnected));
     socket.on("game:playerMove", socketHandler(socket, onPlayerMove));
     socket.on("disconnecting", onUserDisconnecting(socket));
-    
     socket.emit("notification:gameInvite", "notification from server")
   });
 }
