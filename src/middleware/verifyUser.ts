@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import AppError from "../errors/AppError";
 
 export default function verifyUser(req: any, res: Response, next: NextFunction) {
   const accessToken = (req.cookies.accessToken) ? req.cookies.accessToken : req.body.accessToken;
@@ -12,6 +13,6 @@ export default function verifyUser(req: any, res: Response, next: NextFunction) 
     return next();
 
   } catch(error: any) {
-    res.status(401).send("Unauthorized");
+    next(new AppError("Unauthorized", 401))
   }
 }

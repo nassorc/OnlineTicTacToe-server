@@ -19,16 +19,21 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser());
+app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 router(app);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || "error";
   if (res.headersSent) {
     return next(err)
   }
-  res.status(500).send("Something went wrong. Please try again");
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message
+  });
 });
-
 
 server.listen(PORT, async () => {
   try {

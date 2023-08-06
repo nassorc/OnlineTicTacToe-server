@@ -3,6 +3,7 @@ import controllerHandler from "./middleware/controllerHandler";
 import { acceptFriendRequestHandler, addFriendHandler, authenticateUserHandler, createUserHandler, fuzzySearchUserHandler, getFriendsHandler, getUserByUsernameHandler, getUserHandler, rejectFriendRequestHandler } from "./controller/user.controller";
 import verifyUser from "./middleware/verifyUser";
 import { incrementPlayerGameWins, addGameRound } from "./usecase/game.usecase";
+import AppError from "./errors/AppError";
 
 export default function(app: Express) {
   app.post("/api/signin", controllerHandler(authenticateUserHandler));
@@ -18,5 +19,9 @@ export default function(app: Express) {
     // await incrementPlayerGameWins("64aa553941deaa293ca2ec49", "64a3b8ddac9c82a887932c2b");
     await addGameRound("64a60b1f77d9e6a16d183689", "64a3b8ddac9c82a887932c2b");
     res.sendStatus(200);
+  })
+}}
+  app.all("*", (req, res, next) => {
+    next(new AppError(`Page ${req.originalUrl} not found`, 404));
   })
 }
