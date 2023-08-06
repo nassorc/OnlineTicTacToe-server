@@ -2,7 +2,9 @@ import jwt from "jsonwebtoken";
 import UserModel from "../model/User";
 import { createGame } from "./game.usecase";
 import mongoose, { Types } from "mongoose";
-import Fuse from 'fuse.js';
+import Fuse from "fuse.js";
+import bcrypt from "bcrypt";
+import AppError from "../errors/AppError";
 
 export const createUser = async (userDetails: any) => {
     try {
@@ -65,7 +67,10 @@ export const findUserByUsername = async (username: string) => {
 export const authenticateUser = async (email: string, password: string) => {
     const user = await UserModel.findOne({email}, "-__v -sessionId -isSessionValid -createdAt -updatedAt");
     if(!user) throw new Error("Email or password is incorrect");
-    if(user.password != password) throw new Error("Email or password is incorrect"); 
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if(!passwordMatch) throw new AppError("Email or password is incorrect", 401); 
+
     setOnlineStatus(user._id, true);
     const payload = {
         _id: user._id,

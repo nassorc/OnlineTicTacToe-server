@@ -1,4 +1,5 @@
 import mongoose, { Types } from "mongoose";
+import bcrypt from "bcrypt";
 
 const FriendInviteSchema = new mongoose.Schema({
   sender: {type: String, requires: true, ref: 'users'},
@@ -30,6 +31,12 @@ const UserSchema = new mongoose.Schema({
 }, {
     timestamps: true,
 });
+
+UserSchema.pre("save", async function(next) {
+  const hashedPassword = await bcrypt.hash(this.password, 10);
+  this.password = hashedPassword;
+  next();
+})
 
 UserSchema.index({username: 'text'});
 
