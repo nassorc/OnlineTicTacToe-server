@@ -1,3 +1,4 @@
+import AppError from "../errors/AppError";
 import { 
   createUser, 
   authenticateUser, 
@@ -17,48 +18,39 @@ interface requestObjectType {
 }
 
 export const createUserHandler = async ({body}: {body: any}) => {
-    try {
-        const user = await createUser(body);
-        return {
-            headers: {
-                "Content-Type": "application/json"
-            },
-            status: 200,
-            body: JSON.stringify(user) 
-        };
-    }
-    catch(error: any) {
-        return {
-            headers: {
-                "Content-Type": "application/json"
-            },
-            status: 409,
-            body: JSON.stringify({error: "user already exists"}) 
-        };
-    }
+  try {
+    const user = await createUser(body);
+    return {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      status: 200,
+      body: JSON.stringify(user) 
+    };
+  }
+  catch(error: any) {
+    if(error.keyPattern.username) throw new AppError("User already exists", 409);
+    if(error.keyPattern.email) throw new AppError("Email already exists", 409);
+    if(error.keyPattern.password) throw new AppError("Invalid Password", 409);
+    throw error
+  }
 }; 
 
 export const authenticateUserHandler = async ({body}: {body: any}) => {
-    try {
-        const auth = await authenticateUser(body.email, body.password);
-        return {
-            headers: {
-                "Content-Type": "application/json"
-            },
-            status: 200,
-            body: JSON.stringify({user: {userId: auth.userId, username: auth.username, email: auth.email, accessToken: auth.accessToken}}),
-            cookies: [{type: "refreshToken", value: auth.refreshToken, httpOnly: true}, {type: "accessToken", value: auth.accessToken, httpOnly: false}]
-        };
-    }
-    catch(error: any) {
-        return {
-            headers: {
-                "Content-Type": "application/json"
-            },
-            status: 401,
-            body: JSON.stringify({error: error.message}) 
-        };
-    }
+  try {
+    const auth = await authenticateUser(body.email, body.password);
+    return {
+      headers: {
+        "Content-Type": "application/json"
+      },
+      status: 200,
+      body: JSON.stringify({user: {userId: auth.userId, username: auth.username, email: auth.email, accessToken: auth.accessToken}}),
+      cookies: [{type: "refreshToken", value: auth.refreshToken, httpOnly: true}, {type: "accessToken", value: auth.accessToken, httpOnly: false}]
+    };
+  }
+  catch(error: any) {
+    throw new AppError("Email or Password is incorrect", 401)
+  }
 };
 
 export const getUserHandler = async (requestObject: any) => {

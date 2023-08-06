@@ -7,13 +7,9 @@ import bcrypt from "bcrypt";
 import AppError from "../errors/AppError";
 
 export const createUser = async (userDetails: any) => {
-    try {
-        const user = await UserModel.create(userDetails);
-        return user;
-    }
-    catch(error: any) {
-        throw error;
-    }
+  const user = await UserModel.create(userDetails);
+  console.log("USECASE CREATE", user);
+  return user;
 };
 
 export function generateGameId() {
