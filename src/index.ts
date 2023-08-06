@@ -5,6 +5,7 @@ import router from "./routes";
 import mongoose from "mongoose";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import log from "./lib/logger";
 import "dotenv/config";
 import {config} from "./config";
 
@@ -24,6 +25,7 @@ app.use(express.json());
 router(app);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  log.error(err.message);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
   if (res.headersSent) {
