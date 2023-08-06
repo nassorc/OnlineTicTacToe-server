@@ -96,12 +96,11 @@ export const getFriends = async (id: string) => {
   return user?.friends;
 }
 
-export const addFriend = async(currentUserId: string, friendId: string) => {
+export const createFriendRequest = async(currentUserId: string, friendId: string) => {
   // check if user alreay made request
-  const friendRequestExists = await UserModel.findOne({_id: friendId, "friendInvites.sender": currentUserId });
-  if(friendRequestExists) {
-    return
-  }
+  const friendRequestExists = await UserModel.findOne({_id: friendId, $or: [{"friendInvites.sender": currentUserId}, {friends: currentUserId}] });
+  if(friendRequestExists) return
+  // create friend request
   const friend = await UserModel.findByIdAndUpdate(friendId, 
     {$push: { friendInvites: {sender: currentUserId}}}
   )

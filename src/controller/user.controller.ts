@@ -2,7 +2,7 @@ import {
   createUser, 
   authenticateUser, 
   getFriends, 
-  addFriend, 
+  createFriendRequest, 
   acceptFriendRequest, 
   fuzzySearchUser, 
   findUserbyId, 
@@ -85,7 +85,7 @@ export const getFriendsHandler = async (requestObject: any) => {
 export const addFriendHandler = async (requestObject: any) => {
   const currentUserId = requestObject.local.userId;
   const friendId = requestObject.params.id;
-  const res = await addFriend(currentUserId, friendId);
+  const res = await createFriendRequest(currentUserId, friendId);
   // if(!id) return res.status(400).send("Missing friend id");
   // if(!friend) return res.status(400).send("User not found");
   // if(alreadyFriend) return res.status(409).send("User is already a friend");

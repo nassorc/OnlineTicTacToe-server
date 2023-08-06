@@ -1,5 +1,5 @@
 import UserModel from "../model/User";
-import { addFriend, setOnlineStatus } from "../usecase/user.usecase";
+import { createFriendRequest, setOnlineStatus } from "../usecase/user.usecase";
 import checkWinner from "../utils/checkWinner";
 import {config} from "../config";
 import Game from "./Game";
@@ -32,7 +32,7 @@ export async function onUserAddFriend(socket: any, payload: any) {
   const userId = payload.user.userId;
   const username = payload.user.username;
   // save data
-  const friend = await addFriend(userId, friendId);
+  const friend = await createFriendRequest(userId, friendId);
   const invitation = {
     sender: {
       _id: userId,
@@ -43,13 +43,11 @@ export async function onUserAddFriend(socket: any, payload: any) {
       username: friend.username
     }
   }
-  console.log(invitation)
   // emit to receiver
   socket.to(payload.message.friendId).emit("user:receiveFriendRequest", invitation)
 }
 let invitations = [];
 export async function onInvitePlayer(socket: any, payload: any) {
-  console.log(payload.message)
   // extract data
   const playerId = payload.message.playerId;
   const userId = payload.user.userId;
@@ -87,7 +85,6 @@ export async function onAcceptInvitation(socket: any, payload: any) {
   // TODO: notify user when invitation was cancelled by the sender
   if(!invitation) return;
 
-  console.log("ON ACCEPT INVITE::", invitation);
   // add roomId to socket object
   socket.roomId = roomId;
   // join room user to room
@@ -108,7 +105,6 @@ export async function onRejectInvitation(socket: any, payload: any) {
 }
 
 export async function onUserConnected(socket: any, payload: any) {
-  // console.dir(payload, {depth: Infinity});
   const roomId = payload.message.roomId;
   const userId = payload.user.userId || payload.message.userId;
   socket.join(roomId);
@@ -130,7 +126,6 @@ export async function onUserConnected(socket: any, payload: any) {
 export async function onPlayerMove(socket: any, payload: any) {
   // get roomId
   const roomId = payload.message.roomId;
-  console.log("MOVE: ", payload.message.roomId);
   const roundId = payload.message.roundId;
   const board = payload.message.board;
 
@@ -160,7 +155,6 @@ export function onUserDisconnecting(socket: any) {
   return async () => {
     // TODO: Implement saving game when a user disconnects mid game
     // TODO: Inform other player, add abort feature. Giving win to the user who didn't dc
-    console.log("user diconnected");
     await setOnlineStatus(socket.userId, false);
     socket.to(socket.roomKey).emit("friend:disconnected", socket.userId);
   }
