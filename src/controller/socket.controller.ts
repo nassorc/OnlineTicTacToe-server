@@ -53,12 +53,15 @@ export async function onInvitePlayer(socket: any, payload: any) {
   const userId = payload.user.userId;
   const username = payload.user.username;
 
+  // find player that the current user is inviting
   const player = await UserModel.findById(playerId, { _id: true, username: true});
   if(!player) throw new Error("Player does not exist");
 
+  // create new game object
   const newGame = new Game(userId, username , playerId, player.username, Number(config.GAME.MAX_GAMES));
   games.push(newGame);
 
+  // create invitation sent to the other player
   const invitation = {
     roomId: newGame.gameId,
     to: {
@@ -78,9 +81,14 @@ export async function onInvitePlayer(socket: any, payload: any) {
 }
 
 export async function onAcceptInvitation(socket: any, payload: any) {
+  // invitation and game key
   const roomKey = payload.message.roomId;
+  // find the invitation
   const invitation = invitations.find(i => i.roomId === roomKey);
   const roomId = invitation.roomId;
+
+  // delete the invitation
+  invitations =  invitations.filter(inv => inv.roomId != roomId);
 
   // TODO: notify user when invitation was cancelled by the sender
   if(!invitation) return;
